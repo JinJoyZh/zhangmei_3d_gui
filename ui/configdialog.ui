@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ConfigDialog</class>
+ <widget class="QDialog" name="ConfigDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>700</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>高级配置 (config.yaml)</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>676</width>
+        <height>750</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       
+       <!-- Debug Section -->
+       <item>
+        <widget class="QGroupBox" name="groupBoxDebug">
+         <property name="title"><string>基础与调试</string></property>
+         <layout class="QFormLayout" name="formLayoutDebug">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_debug">
+            <property name="text"><string>输出调试日志 🛈:</string></property>
+            <property name="toolTip"><string>调试日志开关：
+是否输出额外的中间调试信息，如将检测与分割的中间结果图像（包含检测框和 SAM 掩膜）
+保存到每个分段的 images 文件夹下以供调试。</string></property>
+           </widget>
+          </item>
+          <item row="0" column="1"><widget class="QCheckBox" name="chk_debug_log_enabled"><property name="text"><string>开启</string></property></widget></item>
+         </layout>
+        </widget>
+       </item>
+
+       <!-- Mesh Filtering Section -->
+       <item>
+        <widget class="QGroupBox" name="groupBoxMesh">
+         <property name="title"><string>网格过滤</string></property>
+         <layout class="QFormLayout" name="formLayoutMesh">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_mesh1">
+            <property name="text"><string>天空飞面过滤高度阈值 🛈:</string></property>
+            <property name="toolTip"><string>距离地面多高以上的网格将进行点云到网格的距离验证，剔除“天空飞面”</string></property>
+           </widget>
+          </item>
+          <item row="0" column="1"><widget class="QDoubleSpinBox" name="spin_sky_mesh_height_threshold"><property name="decimals"><number>2</number></property><property name="singleStep"><double>0.1</double></property></widget></item>
+          
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_mesh2">
+            <property name="text"><string>相机大概高度 (米) 🛈:</string></property>
+            <property name="toolTip"><string>轨迹点（相机/车顶）距离地面的大概高度 (米)</string></property>
+           </widget>
+          </item>
+          <item row="1" column="1"><widget class="QDoubleSpinBox" name="spin_camera_height"><property name="decimals"><number>2</number></property><property name="singleStep"><double>0.1</double></property></widget></item>
+          
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_mesh3">
+            <property name="text"><string>核心安全点距离容差 🛈:</string></property>
+            <property name="toolTip"><string>核心安全点距离容差：距离点云小于此值的顶点被认为是绝对安全的“核心点” (原 0.05m)</string></property>
+           </widget>
+          </item>
+          <item row="2" column="1"><widget class="QDoubleSpinBox" name="spin_sky_mesh_core_tolerance"><property name="decimals"><number>3</number></property><property name="singleStep"><double>0.01</double></property></widget></item>
+          
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_mesh4">
+            <property name="text"><string>放宽距离容差 🛈:</string></property>
+            <property name="toolTip"><string>放宽距离容差：距离点云在此值范围内，且与“核心点”相连的顶点，将被作为合法边缘保留</string></property>
+           </widget>
+          </item>
+          <item row="3" column="1"><widget class="QDoubleSpinBox" name="spin_sky_mesh_relaxed_tolerance"><property name="decimals"><number>3</number></property><property name="singleStep"><double>0.01</double></property></widget></item>
+          
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_mesh5">
+            <property name="text"><string>连通边长阈值 🛈:</string></property>
+            <property name="toolTip"><string>连通边长阈值：只有当顶点与核心点之间的边长小于此值时，才认为它们是“紧密连接”的，防止飞面被意外感染保留</string></property>
+           </widget>
+          </item>
+          <item row="4" column="1"><widget class="QDoubleSpinBox" name="spin_sky_mesh_max_edge_length"><property name="decimals"><number>3</number></property><property name="singleStep"><double>0.05</double></property></widget></item>
+          
+          <item row="5" column="0">
+           <widget class="QLabel" name="label_mesh6">
+            <property name="text"><string>泊松重建深度 🛈:</string></property>
+            <property name="toolTip"><string>Poisson重建的八叉树深度，值越大网格越精细 (默认11，对树木等复杂结构建议11或12)</string></property>
+           </widget>
+          </item>
+          <item row="5" column="1"><widget class="QSpinBox" name="spin_poisson_depth"><property name="minimum"><number>5</number></property><property name="maximum"><number>15</number></property></widget></item>
+          
+          <item row="6" column="0">
+           <widget class="QLabel" name="label_mesh7">
+            <property name="text"><string>最小密度过滤阈值分位数 🛈:</string></property>
+            <property name="toolTip"><string>Poisson重建的最小密度过滤阈值分位数，降低此值可保留更多树叶边缘细节 (原0.02 -> 0.005)</string></property>
+           </widget>
+          </item>
+          <item row="6" column="1"><widget class="QDoubleSpinBox" name="spin_poisson_density_quantile"><property name="decimals"><number>4</number></property><property name="singleStep"><double>0.001</double></property></widget></item>
+         </layout>
+        </widget>
+       </item>
+
+       <!-- Preprocessing & Sensor -->
+       <item>
+        <widget class="QGroupBox" name="groupBoxPre">
+         <property name="title"><string>预处理与传感器</string></property>
+         <layout class="QFormLayout" name="formLayoutPre">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_pre1">
+            <property name="text"><string>LAS 自动分割阈值 (MB) 🛈:</string></property>
+            <property name="toolTip"><string>LAS 点云文件自动分割大小阈值 (单位: MB)：
+为了防止处理超大尺寸点云文件时导致内存溢出 (OOM) 或处理极其缓慢。
+当输入的 LAS 文件大小超过此阈值时，系统会自动调用 split_las.py 将其拆分为多个小文件，
+然后逐块 (chunk-by-chunk) 放入流水线进行三维重建和纹理映射。
+默认为 500 (MB)。</string></property>
+           </widget>
+          </item>
+          <item row="0" column="1"><widget class="QSpinBox" name="spin_auto_split_max_size_mb"><property name="maximum"><number>10000</number></property><property name="singleStep"><number>100</number></property></widget></item>
+          
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_pre2">
+            <property name="text"><string>全景相机镜头数 🛈:</string></property>
+            <property name="toolTip"><string>全景相机包含的物理镜头数量：
+Ladybug5+ 等经典全景相机通常由 6 路（5个侧面+1个顶部）镜头拼接而成。
+某些轻量化设备可能由 2 路（前后两个鱼眼镜头）拼接而成。
+调整此参数可能会影响后续的畸变矫正与映射策略（目前默认按 6 路等距圆柱投影处理）。</string></property>
+           </widget>
+          </item>
+          <item row="1" column="1"><widget class="QSpinBox" name="spin_camera_count"><property name="minimum"><number>1</number></property><property name="maximum"><number>10</number></property></widget></item>
+         </layout>
+        </widget>
+       </item>
+
+       <!-- Texture & Quality -->
+       <item>
+        <widget class="QGroupBox" name="groupBoxTex">
+         <property name="title"><string>纹理映射与数据校验</string></property>
+         <layout class="QFormLayout" name="formLayoutTex">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_tex1">
+            <property name="text"><string>开启点云烘焙 🛈:</string></property>
+            <property name="toolTip"><string>是否开启点云烘焙 (Point Cloud Baking)：
+如果您的原始点云数据未着色 (无 RGB 字段)，建议设置为 false。
+设置为 false 时，系统将直接采用相邻视角相机的照片贴图对车身盲区进行兜底修补。
+设置为 true 时，优先尝试从点云自身提取颜色进行烘焙，失败时再使用照片贴图兜底。</string></property>
+           </widget>
+          </item>
+          <item row="0" column="1"><widget class="QCheckBox" name="chk_enable_point_cloud_baking"><property name="text"><string>开启</string></property></widget></item>
+          
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_tex2">
+            <property name="text"><string>Mask 宽度缩放 🛈:</string></property>
+            <property name="toolTip"><string>车顶/车底点云烘焙区域 (Mask) 的动态扩展缩放系数：
+将核心掩膜在物理尺寸上进行拉伸，形成连通的整体烘焙通道。
+宽度缩放 (scale_width): 1.4 左右拓宽，确保覆盖车身两侧由于遮挡或阴影产生的黑色盲区，并完整包裹相邻车道线。</string></property>
+           </widget>
+          </item>
+          <item row="1" column="1"><widget class="QDoubleSpinBox" name="spin_mask_scale_width"><property name="decimals"><number>2</number></property><property name="singleStep"><double>0.1</double></property></widget></item>
+          
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_tex3">
+            <property name="text"><string>Mask 长度缩放 🛈:</string></property>
+            <property name="toolTip"><string>车顶/车底点云烘焙区域 (Mask) 的动态扩展缩放系数：
+将核心掩膜在物理尺寸上进行拉伸，形成连通的整体烘焙通道。
+长度缩放 (scale_length): 3.0 前后拉长，使前后帧的烘焙区域能够首尾相连形成连续条带。</string></property>
+           </widget>
+          </item>
+          <item row="2" column="1"><widget class="QDoubleSpinBox" name="spin_mask_scale_length"><property name="decimals"><number>2</number></property><property name="singleStep"><double>0.1</double></property></widget></item>
+          
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_tex4">
+            <property name="text"><string>最大允许相机基线 (米) 🛈:</string></property>
+            <property name="toolTip"><string>最大允许相机基线 (米)：
+相邻两次拍照的触发间距。超过此值会在剔除车顶遮挡后，导致补图时出现严重的掠射角拉伸。</string></property>
+           </widget>
+          </item>
+          <item row="3" column="1"><widget class="QDoubleSpinBox" name="spin_max_baseline_warning"><property name="decimals"><number>2</number></property><property name="singleStep"><double>0.5</double></property></widget></item>
+          
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_tex5">
+            <property name="text"><string>最小允许掠射角 (度) 🛈:</string></property>
+            <property name="toolTip"><string>最小允许观测掠射角 (度)：
+估算的补盲相机俯视角。低于此视角会导致车底区域由于几何微小误差产生极端错位印痕。</string></property>
+           </widget>
+          </item>
+          <item row="4" column="1"><widget class="QDoubleSpinBox" name="spin_min_grazing_angle_warning"><property name="decimals"><number>1</number></property><property name="singleStep"><double>1.0</double></property></widget></item>
+         </layout>
+        </widget>
+       </item>
+
+       <!-- Sign Reconstruction -->
+       <item>
+        <widget class="QGroupBox" name="groupBoxSign">
+         <property name="title"><string>路牌检测与补齐</string></property>
+         <layout class="QFormLayout" name="formLayoutSign">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_sign1">
+            <property name="text"><string>启用路牌重建 🛈:</string></property>
+            <property name="toolTip"><string>路牌检测与分割总开关：
+设置为 false 时，将跳过所有路牌的检测、分割和 3D 重建补齐流程，极大加快整体处理速度，方便快速预览路面。</string></property>
+           </widget>
+          </item>
+          <item row="0" column="1"><widget class="QCheckBox" name="chk_sign_enabled"><property name="text"><string>开启</string></property></widget></item>
+          
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_sign2">
+            <property name="text"><string>最大提取距离 (米) 🛈:</string></property>
+            <property name="toolTip"><string>最大提取距离 (米)：由于全景图像素畸变和透视关系，距离太远的路牌检测框和分割容易产生极大误差。
+超过此距离的路牌在当前帧将被忽略，等待车辆靠近后再提取。</string></property>
+           </widget>
+          </item>
+          <item row="1" column="1"><widget class="QDoubleSpinBox" name="spin_sign_max_distance_to_cam"><property name="decimals"><number>2</number></property><property name="singleStep"><double>1.0</double></property></widget></item>
+          
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_sign3">
+            <property name="text"><string>最小 Z 轴高度 (米) 🛈:</string></property>
+            <property name="toolTip"><string>最小高度阈值 (米)：真实路牌通常悬挂在半空或有立柱支撑。
+Z 轴高度（相对于当前路面）低于此值的检测结果将被判定为建筑底层门窗或地面干扰物并剔除。</string></property>
+           </widget>
+          </item>
+          <item row="2" column="1"><widget class="QDoubleSpinBox" name="spin_sign_min_z_height"><property name="decimals"><number>2</number></property><property name="singleStep"><double>0.1</double></property></widget></item>
+          
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_sign4">
+            <property name="text"><string>聚类去重距离阈值 (米) 🛈:</string></property>
+            <property name="toolTip"><string>聚类去重距离阈值 (米)：同一路牌可能在连续多帧中被检测并构建了多个极其接近的 3D 网格。
+中心点距离小于此值的网格将被判定为同一个路牌，并只保留面积最大、最完整的那个，以消除纹理碎片化。</string></property>
+           </widget>
+          </item>
+          <item row="3" column="1"><widget class="QDoubleSpinBox" name="spin_sign_clustering_distance"><property name="decimals"><number>2</number></property><property name="singleStep"><double>0.1</double></property></widget></item>
+          
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_sign5">
+            <property name="text"><string>包围盒裁剪缩放系数 🛈:</string></property>
+            <property name="toolTip"><string>OBB / AABB 包围盒裁剪缩放系数：
+将补齐的完美路牌网格合并回主模型前，需要删掉原来残缺的点云。这个系数控制裁剪包围盒的大小。
+设为 1.1 仅切除路牌附近的残缺飞边，如果设得太大(如 2.0)容易误删地面或树木。</string></property>
+           </widget>
+          </item>
+          <item row="4" column="1"><widget class="QDoubleSpinBox" name="spin_sign_bbox_crop_scale"><property name="decimals"><number>2</number></property><property name="singleStep"><double>0.1</double></property></widget></item>
+         </layout>
+        </widget>
+       </item>
+
+      </layout>
+     </widget>
+    </widget>
+   </item>
+   
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="btnRestoreDefault">
+       <property name="text">
+        <string>恢复默认配置</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnSave">
+       <property name="text">
+        <string>保存</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnCancel">
+       <property name="text">
+        <string>取消</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

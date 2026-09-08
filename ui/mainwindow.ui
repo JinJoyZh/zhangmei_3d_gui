@@ -1,0 +1,494 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>中煤航测3D街道重建客户端</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayoutTopConfig">
+      <item>
+       <widget class="QPushButton" name="btnRestartDocker">
+        <property name="text">
+         <string>重启容器</string>
+        </property>
+        <property name="toolTip">
+         <string>重启后台 Docker 容器 (docker restart)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacerTop">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnConfig">
+        <property name="text">
+         <string>高级配置 🛈...</string>
+        </property>
+        <property name="toolTip">
+         <string>修改 config.yaml 高级算法参数</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="groupBoxDocker">
+      <property name="title">
+       <string>Docker 环境配置</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayoutDocker">
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelContainerName">
+         <property name="toolTip">
+          <string>运行3D重建算法的Docker容器名称</string>
+         </property>
+         <property name="text">
+          <string>容器名称 🛈:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="lineEditContainerName">
+         <property name="toolTip">
+          <string>运行3D重建算法的Docker容器名称</string>
+         </property>
+         <property name="text">
+          <string>zhongmei_3d</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelHostPath">
+         <property name="toolTip">
+          <string>宿主机上挂载到容器的物理路径根目录（如 W:/zhongmei-3d-reconstruction）。用于将 Windows 路径自动转换为容器内路径</string>
+         </property>
+         <property name="text">
+          <string>宿主机挂载路径 🛈:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="lineEditHostPath">
+         <property name="toolTip">
+          <string>宿主机上挂载到容器的物理路径根目录（如 W:/zhongmei-3d-reconstruction）。用于将 Windows 路径自动转换为容器内路径</string>
+         </property>
+         <property name="text">
+          <string>W:/zhongmei-3d-reconstruction</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="labelContainerPath">
+         <property name="toolTip">
+          <string>Docker 容器内对应的挂载点路径（通常为 /workspace）</string>
+         </property>
+         <property name="text">
+          <string>容器内映射路径 🛈:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="lineEditContainerPath">
+         <property name="toolTip">
+          <string>Docker 容器内对应的挂载点路径（通常为 /workspace）</string>
+         </property>
+         <property name="text">
+          <string>/workspace</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="groupBoxInput">
+      <property name="title">
+       <string>输入/输出配置</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="labelLas">
+         <property name="toolTip">
+          <string>点云文件 .las，三维重建基础几何模型</string>
+         </property>
+         <property name="text">
+          <string>LAS 点云文件 🛈:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="lineEditLas">
+         <property name="toolTip">
+          <string>点云文件 .las，三维重建基础几何模型</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QPushButton" name="btnBrowseLas">
+         <property name="text">
+          <string>浏览...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="labelPos">
+         <property name="toolTip">
+          <string>轨迹位姿文件 imgpost.txt (多目模式) 或 posl.txt (全景模式)</string>
+         </property>
+         <property name="text">
+          <string>POS 轨迹文件 🛈:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="lineEditPos">
+         <property name="toolTip">
+          <string>轨迹位姿文件 imgpost.txt (多目模式) 或 posl.txt (全景模式)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="btnBrowsePos">
+         <property name="text">
+          <string>浏览...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="labelInspose">
+         <property name="toolTip">
+          <string>INSPose.dd 位姿数据文件的路径 (全景模式纹理贴图必填)</string>
+         </property>
+         <property name="text">
+          <string>INSPose 文件 🛈:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="lineEditInspose">
+         <property name="toolTip">
+          <string>INSPose.dd 位姿数据文件的路径 (全景模式纹理贴图必填)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QPushButton" name="btnBrowseInspose">
+         <property name="text">
+          <string>浏览...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="labelMetashape">
+         <property name="toolTip">
+          <string>Metashape.txt 相机位置文件的路径 (全景模式纹理贴图必填)</string>
+         </property>
+         <property name="text">
+          <string>Metashape 文件 🛈:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="lineEditMetashape">
+         <property name="toolTip">
+          <string>Metashape.txt 相机位置文件的路径 (全景模式纹理贴图必填)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="2">
+        <widget class="QPushButton" name="btnBrowseMetashape">
+         <property name="text">
+          <string>浏览...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="labelImageDir">
+         <property name="toolTip">
+          <string>存放全景图像的目录路径 (全景模式纹理贴图必填)</string>
+         </property>
+         <property name="text">
+          <string>全景图像目录 🛈:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QLineEdit" name="lineEditImageDir">
+         <property name="toolTip">
+          <string>存放全景图像的目录路径 (全景模式纹理贴图必填)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="2">
+        <widget class="QPushButton" name="btnBrowseImageDir">
+         <property name="text">
+          <string>浏览...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="0">
+        <widget class="QLabel" name="labelMask">
+         <property name="toolTip">
+          <string>mask.png 底部遮罩图的路径 (全景模式可选)</string>
+         </property>
+         <property name="text">
+          <string>Mask 遮罩图 🛈:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="1">
+        <widget class="QLineEdit" name="lineEditMask">
+         <property name="toolTip">
+          <string>mask.png 底部遮罩图的路径 (全景模式可选)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="2">
+        <widget class="QPushButton" name="btnBrowseMask">
+         <property name="text">
+          <string>浏览...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="0">
+        <widget class="QLabel" name="labelIni">
+         <property name="toolTip">
+          <string>相机标定文件 .ini，读取多目相机的内参及杆臂外参 (仅多目模式需提供)</string>
+         </property>
+         <property name="text">
+          <string>相机标定 🛈:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QLineEdit" name="lineEditIni">
+         <property name="toolTip">
+          <string>相机标定文件 .ini，读取多目相机的内参及杆臂外参 (仅多目模式需提供)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="2">
+        <widget class="QPushButton" name="btnBrowseIni">
+         <property name="text">
+          <string>浏览...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="7" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayoutConfig">
+         <item>
+          <widget class="QLabel" name="labelConfig">
+           <property name="toolTip">
+            <string>相机配置 JSON 文件 .json，绑定各相机的图像目录与位姿记录 (仅多目模式需提供)。
+点击右侧【导出模板】按钮可生成一份标准的配置文件及字段说明。</string>
+           </property>
+           <property name="text">
+            <string>相机配置 🛈:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnExportConfigTemplate">
+           <property name="toolTip">
+            <string>导出相机配置的示例模板 JSON 文件</string>
+           </property>
+           <property name="text">
+            <string>导出模板</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item row="7" column="1">
+        <widget class="QLineEdit" name="lineEditConfig">
+           <property name="toolTip">
+            <string>相机配置 JSON 文件 .json，绑定各相机的图像目录与位姿记录 (仅多目模式需提供)。
+点击左侧【导出模板】按钮可生成一份标准的配置文件及字段说明。</string>
+           </property>
+        </widget>
+       </item>
+       <item row="7" column="2">
+        <widget class="QPushButton" name="btnBrowseConfig">
+         <property name="text">
+          <string>浏览...</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="0">
+        <widget class="QLabel" name="labelOut">
+         <property name="toolTip">
+          <string>基于宿主机挂载路径的相对输出子目录。实际将保存在: 挂载目录/输出子目录 下</string>
+         </property>
+         <property name="text">
+          <string>输出目录 🛈:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1" colspan="2">
+        <layout class="QHBoxLayout" name="horizontalLayoutOut">
+         <item>
+          <widget class="QLabel" name="labelOutBase">
+           <property name="text">
+            <string>W:/zhongmei-3d-reconstruction/</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEditOut">
+           <property name="toolTip">
+            <string>基于宿主机挂载路径的相对输出子目录。例如输入 output/test，实际将保存在 宿主机挂载路径/output/test 下</string>
+           </property>
+           <property name="text">
+            <string>output</string>
+           </property>
+           <property name="placeholderText">
+            <string>例如: output/task1 (将自动建在挂载目录下)</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="groupBoxOptions">
+      <property name="title">
+       <string>算法参数</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QCheckBox" name="chkPan">
+         <property name="toolTip">
+          <string>核心模式开关。勾选为全景模式，不勾选开启多目定向相机模式</string>
+         </property>
+         <property name="text">
+          <string>全景模式 🛈</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkWhiteModel">
+         <property name="toolTip">
+          <string>白模模式，跳过纹理贴图步骤</string>
+         </property>
+         <property name="text">
+          <string>白模模式 🛈</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkDisableFill">
+         <property name="toolTip">
+          <string>（可选）关闭点云填补与裂缝修复。当源点云存在大量贴地噪声时建议勾选，防止生成“伪路面”导致纹理错乱</string>
+         </property>
+         <property name="text">
+          <string>禁用路面补洞 🛈</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QPushButton" name="btnStart">
+        <property name="text">
+         <string>开始重建</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnStop">
+        <property name="text">
+         <string>停止/终止</string>
+        </property>
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QProgressBar" name="progressBar">
+      <property name="value">
+       <number>0</number>
+      </property>
+      <property name="textVisible">
+       <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="groupBoxLog">
+      <property name="title">
+       <string>Docker 运行日志</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayoutLog">
+       <item>
+        <widget class="QTextEdit" name="textEditLog">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+         <property name="font">
+          <font>
+           <family>Consolas</family>
+           <pointsize>9</pointsize>
+          </font>
+         </property>
+         <property name="styleSheet">
+          <string>QTextEdit { background-color: #1E1E1E; color: #D4D4D4; }</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

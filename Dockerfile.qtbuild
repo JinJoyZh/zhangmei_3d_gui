@@ -1,0 +1,15 @@
+FROM ubuntu:20.04
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 替换为国内镜像源加速下载
+RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+    sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
+
+RUN apt-get update && apt-get install -y \
+    qt5-default \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+# 编译命令：清理旧构建 -> 重新生成 Makefile -> 执行构建
+CMD make clean; qmake gui.pro -spec linux-g++ CONFIG+=release && make -j4

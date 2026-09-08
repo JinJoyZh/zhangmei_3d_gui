@@ -1,0 +1,30 @@
+# C++ Objects and Archives
+*.o
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+
+# Qt Generated Files
+moc_*.cpp
+moc_predefs.h
+ui_*.h
+qrc_*.cpp
+Makefile
+Makefile.*
+*.qmake.stash
+*.qmake.cache
+.qmake.stash
+
+# Build Directories
+build*/
+build_dir/
+build_artifacts/
+*.pro.user
+*.pro.user.*
+
+# OS generated
+.DS_Store
+Thumbs.db

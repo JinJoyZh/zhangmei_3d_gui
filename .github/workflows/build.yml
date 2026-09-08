@@ -1,0 +1,56 @@
+name: Build Qt GUI for ARM64 (Kylin V10)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build-aarch64:
+    name: Build on Ubuntu 22.04 aarch64
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Cross-compile via QEMU ARM64 Container
+        uses: uraimo/run-on-arch-action@v2
+        id: build
+        with:
+          arch: aarch64
+          distro: ubuntu22.04
+          githubToken: ${{ github.token }}
+          
+          setup: |
+            mkdir -p "${PWD}/build_artifacts"
+            
+          dockerRunArgs: |
+            --volume "${PWD}/build_artifacts:/build_artifacts"
+            
+          install: |
+            apt-get update -q -y
+            DEBIAN_FRONTEND=noninteractive apt-get install -q -y \
+              build-essential \
+              qtbase5-dev \
+              qtchooser \
+              qt5-qmake \
+              qtbase5-dev-tools \
+              libqt5svg5-dev
+            
+          run: |
+            echo "Starting build process..."
+            mkdir build_dir && cd build_dir
+            qmake ../gui.pro 
+            make -j$(nproc)
+            echo "Build finished. Extracting executable..."
+            find . -maxdepth 1 -type f -executable -exec cp {} /build_artifacts/ \;
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: zhangmei_3d_gui-arm64-kylin-v10
+          path: build_artifacts/
+          retention-days: 7

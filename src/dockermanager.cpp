@@ -1,6 +1,22 @@
 #include "dockermanager.h"
 #include <QDebug>
 #include <QRegularExpression>
+#include <QStandardPaths>
+#include <QFileInfo>
+
+// 获取 Docker 可执行文件的绝对路径，防止 Linux 桌面启动时 PATH 丢失
+static QString getDockerExecutablePath() {
+    QString path = QStandardPaths::findExecutable("docker");
+    if (path.isEmpty()) {
+#ifdef Q_OS_LINUX
+        if (QFileInfo::exists("/usr/bin/docker")) return "/usr/bin/docker";
+        if (QFileInfo::exists("/usr/local/bin/docker")) return "/usr/local/bin/docker";
+        if (QFileInfo::exists("/snap/bin/docker")) return "/snap/bin/docker";
+#endif
+        return "docker"; // 兜底返回默认名称
+    }
+    return path;
+}
 
 DockerManager::DockerManager(QObject *parent) : QObject(parent)
 {
@@ -115,8 +131,8 @@ void DockerManager::startTask(const QString &lasFile, const QString &posFile, co
         args << "--disable_fill";
     }
 
-    emit logReady(QString("[SYSTEM] Executing: docker %1\n").arg(args.join(" ")));
-    m_process->start("docker", args);
+    emit logReady(QString("[SYSTEM] Executing: %1 %2\n").arg(getDockerExecutablePath(), args.join(" ")));
+    m_process->start(getDockerExecutablePath(), args);
 }
 
 void DockerManager::stopTask()
@@ -127,7 +143,7 @@ void DockerManager::stopTask()
         
         // 使用分离的后台进程静默执行容器重启，-t 1 表示仅给1秒的平滑退出时间，随后直接 SIGKILL
         if (!m_currentContainerName.isEmpty()) {
-            QProcess::startDetached("docker", QStringList() << "restart" << "-t" << "1" << m_currentContainerName);
+            QProcess::startDetached(getDockerExecutablePath(), QStringList() << "restart" << "-t" << "1" << m_currentContainerName);
         }
     }
 }

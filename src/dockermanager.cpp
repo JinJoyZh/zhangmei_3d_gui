@@ -1,22 +1,8 @@
 #include "dockermanager.h"
 #include <QDebug>
+#include <QFileInfo>
 #include <QRegularExpression>
 #include <QStandardPaths>
-#include <QFileInfo>
-
-// 获取 Docker 可执行文件的绝对路径，防止 Linux 桌面启动时 PATH 丢失
-static QString getDockerExecutablePath() {
-    QString path = QStandardPaths::findExecutable("docker");
-    if (path.isEmpty()) {
-#ifdef Q_OS_LINUX
-        if (QFileInfo::exists("/usr/bin/docker")) return "/usr/bin/docker";
-        if (QFileInfo::exists("/usr/local/bin/docker")) return "/usr/local/bin/docker";
-        if (QFileInfo::exists("/snap/bin/docker")) return "/snap/bin/docker";
-#endif
-        return "docker"; // 兜底返回默认名称
-    }
-    return path;
-}
 
 DockerManager::DockerManager(QObject *parent) : QObject(parent)
 {
@@ -42,6 +28,42 @@ DockerManager::~DockerManager()
         m_process->kill();
         m_process->waitForFinished(3000);
     }
+}
+
+QString DockerManager::dockerExecutable()
+{
+    const QString configuredPath = qEnvironmentVariable("ZHONGMEI_DOCKER_BIN").trimmed();
+    if (!configuredPath.isEmpty() && QFileInfo(configuredPath).isExecutable()) {
+        return configuredPath;
+    }
+
+#ifdef Q_OS_WIN
+    const QString executableName = "docker.exe";
+#else
+    const QString executableName = "docker";
+#endif
+
+    const QString detectedPath = QStandardPaths::findExecutable(executableName);
+    if (!detectedPath.isEmpty()) {
+        return detectedPath;
+    }
+
+    QStringList candidates;
+#ifdef Q_OS_WIN
+    candidates << "C:/Program Files/Docker/Docker/resources/bin/docker.exe";
+#else
+    candidates << "/usr/bin/docker"
+               << "/usr/local/bin/docker"
+               << "/snap/bin/docker";
+#endif
+
+    for (const QString &candidate : candidates) {
+        if (QFileInfo(candidate).isExecutable()) {
+            return candidate;
+        }
+    }
+
+    return QString();
 }
 
 QString DockerManager::translatePathToDocker(const QString &hostPath, const QString &hostMountPath, const QString &containerMountPath) const
@@ -85,6 +107,12 @@ void DockerManager::startTask(const QString &lasFile, const QString &posFile, co
 
     m_outputBuffer.clear();
     m_currentContainerName = containerName;
+    m_currentDockerExecutable = dockerExecutable();
+    if (m_currentDockerExecutable.isEmpty()) {
+        emit errorOccurred(
+            "Docker CLI was not found. Install Docker or set ZHONGMEI_DOCKER_BIN to its absolute path.");
+        return;
+    }
 
     QString dockerLas = translatePathToDocker(lasFile, hostMountPath, containerMountPath);
     QString dockerPos = translatePathToDocker(posFile, hostMountPath, containerMountPath);
@@ -131,8 +159,9 @@ void DockerManager::startTask(const QString &lasFile, const QString &posFile, co
         args << "--disable_fill";
     }
 
-    emit logReady(QString("[SYSTEM] Executing: %1 %2\n").arg(getDockerExecutablePath(), args.join(" ")));
-    m_process->start(getDockerExecutablePath(), args);
+    emit logReady(QString("[SYSTEM] Docker CLI: %1\n").arg(m_currentDockerExecutable));
+    emit logReady(QString("[SYSTEM] Executing: docker %1\n").arg(args.join(" ")));
+    m_process->start(m_currentDockerExecutable, args);
 }
 
 void DockerManager::stopTask()
@@ -143,7 +172,14 @@ void DockerManager::stopTask()
         
         // 使用分离的后台进程静默执行容器重启，-t 1 表示仅给1秒的平滑退出时间，随后直接 SIGKILL
         if (!m_currentContainerName.isEmpty()) {
-            QProcess::startDetached(getDockerExecutablePath(), QStringList() << "restart" << "-t" << "1" << m_currentContainerName);
+            const QString dockerProgram = m_currentDockerExecutable.isEmpty()
+                ? dockerExecutable()
+                : m_currentDockerExecutable;
+            if (!dockerProgram.isEmpty()) {
+                QProcess::startDetached(
+                    dockerProgram,
+                    QStringList() << "restart" << "-t" << "1" << m_currentContainerName);
+            }
         }
     }
 }
@@ -222,5 +258,9 @@ void DockerManager::onProcessFinished(int exitCode, QProcess::ExitStatus exitSta
 
 void DockerManager::onProcessError(QProcess::ProcessError error)
 {
-    emit errorOccurred(QString("QProcess Error: %1").arg(error));
+    emit errorOccurred(
+        QString("Docker process error %1 (%2): %3")
+            .arg(static_cast<int>(error))
+            .arg(m_currentDockerExecutable)
+            .arg(m_process->errorString()));
 }

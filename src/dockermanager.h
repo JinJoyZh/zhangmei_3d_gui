@@ -26,6 +26,9 @@ public:
     // 判断是否在运行
     bool isRunning() const;
 
+    // 查找宿主机 Docker CLI，兼容桌面启动时 PATH 不完整的 Linux 环境
+    static QString dockerExecutable();
+
 signals:
     void logReady(const QString &log);
     void chunkProgressUpdated(int current, int total);
@@ -42,6 +45,7 @@ private:
     QProcess *m_process;
     QString m_outputBuffer;
     QString m_currentContainerName;
+    QString m_currentDockerExecutable;
     
     // 路径映射函数：Windows 路径 -> Docker 容器内的挂载路径
     QString translatePathToDocker(const QString &hostPath, const QString &hostMountPath, const QString &containerMountPath) const;

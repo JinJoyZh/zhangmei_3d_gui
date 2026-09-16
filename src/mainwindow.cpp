@@ -97,28 +97,28 @@ void MainWindow::on_btnExportConfigTemplate_clicked()
     out << QString::fromUtf8("{\n"
         "    \"road_cameras\": [\n"
         "        {\n"
-        "            \"name\": \"<相机标识，需与ini文件一致，如 Camera3>\",\n"
-        "            \"img_dir\": \"<容器内该相机图像的存放目录>\",\n"
-        "            \"pos_file\": \"<容器内该相机位姿文件的路径>\",\n"
-        "            \"mask\": \"<可选，该相机专属掩膜图像的容器内路径。掩膜中黑色区域代表需要剔除的车体遮挡，白色区域代表保留用于贴图的有效场景>\"\n"
+        "            \"name\": \"<相机标识，必须与相机标定 INI 中的段名一致，如 Camera3>\",\n"
+        "            \"img_dir\": \"<容器内图像目录，如 /workspace/data/Img>\",\n"
+        "            \"pos_file\": \"<容器内位姿文件路径，如 /workspace/data/Camera3/imgpost.txt>\",\n"
+        "            \"mask\": \"<可选，容器内遮罩路径；黑色 RGB<128 剔除，白色保留>\"\n"
         "        },\n"
         "        {\n"
-        "            \"name\": \"<相机标识，如 Camera4>\",\n"
-        "            \"img_dir\": \"<容器内该相机图像的存放目录>\",\n"
-        "            \"pos_file\": \"<容器内该相机位姿文件的路径>\",\n"
-        "            \"mask\": \"<可选，该相机专属掩膜图像的容器内路径>\"\n"
+        "            \"name\": \"<相机标识，必须与相机标定 INI 中的段名一致，如 Camera4>\",\n"
+        "            \"img_dir\": \"<容器内图像目录，如 /workspace/data/Img>\",\n"
+        "            \"pos_file\": \"<容器内位姿文件路径，如 /workspace/data/Camera4/imgpost.txt>\",\n"
+        "            \"mask\": \"<可选，容器内遮罩路径；黑色 RGB<128 剔除，白色保留>\"\n"
         "        }\n"
         "    ],\n"
         "    \"sign_cameras\": [\n"
         "        {\n"
-        "            \"name\": \"<相机标识，如 Camera1>\",\n"
-        "            \"img_dir\": \"<容器内该相机图像的存放目录>\",\n"
-        "            \"pos_file\": \"<容器内该相机位姿文件的路径>\"\n"
+        "            \"name\": \"<相机标识，必须与相机标定 INI 中的段名一致，如 Camera1>\",\n"
+        "            \"img_dir\": \"<容器内图像目录，如 /workspace/data/Img>\",\n"
+        "            \"pos_file\": \"<容器内位姿文件路径，如 /workspace/data/Camera1/imgpost.txt>\"\n"
         "        },\n"
         "        {\n"
-        "            \"name\": \"<相机标识，如 Camera2>\",\n"
-        "            \"img_dir\": \"<容器内该相机图像的存放目录>\",\n"
-        "            \"pos_file\": \"<容器内该相机位姿文件的路径>\"\n"
+        "            \"name\": \"<相机标识，必须与相机标定 INI 中的段名一致，如 Camera2>\",\n"
+        "            \"img_dir\": \"<容器内图像目录，如 /workspace/data/Img>\",\n"
+        "            \"pos_file\": \"<容器内位姿文件路径，如 /workspace/data/Camera2/imgpost.txt>\"\n"
         "        }\n"
         "    ]\n"
         "}\n");
@@ -343,6 +343,15 @@ void MainWindow::on_btnRestartDocker_clicked()
     if (containerName.isEmpty()) {
         containerName = "zhongmei_3d";
     }
+
+    const QString dockerProgram = DockerManager::dockerExecutable();
+    if (dockerProgram.isEmpty()) {
+        QMessageBox::critical(
+            this,
+            "Docker 命令不可用",
+            "未找到 Docker CLI。请安装 Docker，或设置环境变量 ZHONGMEI_DOCKER_BIN 为 docker 的绝对路径。");
+        return;
+    }
     
     // Disable all other UI components
     ui->btnRestartDocker->setEnabled(false);
@@ -379,10 +388,13 @@ void MainWindow::on_btnRestartDocker_clicked()
         process->deleteLater();
     });
     
-    connect(process, &QProcess::errorOccurred, 
-            [this, process](QProcess::ProcessError error) {
+    connect(process, &QProcess::errorOccurred,
+            [this, process, dockerProgram](QProcess::ProcessError error) {
         if (error == QProcess::FailedToStart) {
-            QMessageBox::critical(this, "失败", "无法启动 Docker 命令，请检查环境配置。");
+            QMessageBox::critical(
+                this,
+                "无法启动 Docker",
+                QString("Docker CLI: %1\n错误：%2").arg(dockerProgram, process->errorString()));
             
             ui->btnRestartDocker->setEnabled(true);
             ui->btnRestartDocker->setText("重启容器");
@@ -397,7 +409,7 @@ void MainWindow::on_btnRestartDocker_clicked()
         }
     });
     
-    process->start("docker", QStringList() << "restart" << containerName);
+    process->start(dockerProgram, QStringList() << "restart" << containerName);
 }
 
 void MainWindow::appendLog(const QString &log)
